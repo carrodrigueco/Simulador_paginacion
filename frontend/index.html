@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Paginacion</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Simulador de algoritmos de reemplazo de paginas</h1>
+
+    <section id="Input-secuencia">
+        <label for="Seccion-botones">Oprima el boton de la pagina que desea agregar a la fila</label>
+        <br><br>
+        <div class="Seccion-botones">
+            <button class="Input-button verde" @click="AgregarPagina('1', 'verde')">1</button>
+            <button class="Input-button verde-claro" @click="AgregarPagina('2', 'verde-claro')">2</button>
+            <button class="Input-button amarillo-verdoso" @click="AgregarPagina('3', 'amarillo-verdoso')">3</button>
+            <button class="Input-button amarillo" @click="AgregarPagina('4', 'amarillo')">4</button>
+            <button class="Input-button naranja" @click="AgregarPagina('5', 'naranja')">5</button>
+            <button class="Input-button rojo" @click="AgregarPagina('6', 'rojo')">6</button>
+        </div>
+    </section>
+
+    <section id="Output-secuencia">
+        <p>Secuencia escogida</p>
+        <div id="Paginas-secuencia">
+            <div v-for="(pagina, index) in paginas"class="page-box" :class="pagina.color">
+                <p>{{ pagina.pagina }}</p>
+                <button class="close-btn" @click="RetirarPagina(index)">X</button>
+            </div>
+        </div>
+        <p v-if="mensaje_limite">LIMITE DE PAGINAS ALCANZADO</p>
+        <br>
+        <br>
+        <button class="boton-simular" @click="Simular">SIMULAR</button>
+    </section>
+
+    <section id="Results-secuencia">
+
+    </section>
+    <script type="module">
+        import { createApp } from 'https://unpkg.com/petite-vue?module'
+        import { componente } from './componente.js'
+        createApp(componente).mount()
+    </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+body {
+  background-color: #f4f4f9;
+  font-family: 'Segoe UI', sans-serif;
+  color: #202020;
+  margin: 0;
+  padding: 20px;
+}
+
+.verde { background-color: #4CAF50; }
+.verde-claro { background-color: #8BC34A; }
+.amarillo-verdoso { background-color: #CDDC39; }
+.amarillo { background-color: #FFEB3B; }
+.naranja { background-color: #FF9800; }
+.rojo { background-color: #F44336; }
+
+
+/* 🔹 Input-secuencia */
+#Input-secuencia {
+  border: 2px solid #b0c4de;
+  background-color: #ffffff;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+/* 🔹 Seccion-botones */
+#Seccion-botones {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  flex-wrap: nowrap; /* Evita que se bajen a otra línea */
+  border: 2px solid #7f9db9;
+  background-color: #eef3f8;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+
+/* 🔹 Input-button */
+.Input-button {
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #fff;
+}
+
+.Input-button:hover {
+  transform: scale(1.1);
+}
+
+/* ❓ Para cambiar el color de cada botón individualmente: */
+    /* Usa la propiedad `background-color` en línea o con clases */
+    /* Ejemplo: <button style="background-color: #8BC34A">0</button> */
+
+/* 🔹 Output-secuencia */
+#Output-secuencia {
+  border: 2px solid #5a7391;
+  padding: 15px;
+  background-color: #ffffff;
+  margin-bottom: 20px;
+  min-height: 50px;
+}
+
+/* 🔹 Paginas-secuencia */
+#Paginas-secuencia {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  padding: 10px;
+  border: 2px dashed #5a7391;
+  background-color: #e8eef5;
+  min-height: 60px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+
+
+/* 🔹 Results-secuencia */
+#Results-secuencia {
+  border: 2px solid #c8ccd0;
+  background-color: #f0f4f7;
+  padding: 15px;
+}
+
+.boton-simular {
+  background: linear-gradient(135deg, #3f51b5, #1a237e); /* tonos azules oscuros */
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 8px rgba(31, 51, 105, 0.3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.boton-simular:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(31, 51, 105, 0.4);
+  background: linear-gradient(135deg, #5c6bc0, #3949ab);
+}
+
+.boton-simular:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 4px rgba(31, 51, 105, 0.2);
+}
+
+
+/* Cada "cuadro de página" */
+.pagina {
+  width: 40px;
+  height: 40px;
+  background-color: #91d8f4;
+  border: 2px solid #3e74a1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #1c1c1c;
+}
+
+.page-box {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.page-box p {
+  margin: 0;
+}
+
+.page-box .close-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background-color: #222;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 14px;
+  padding: 0;
+}
