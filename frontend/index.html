@@ -3,45 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Paginacion</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Simulador Paginacion - Cyberpunk</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Simulador de algoritmos de reemplazo de paginas</h1>
+    <div class="cyber-glow-bg"></div>
+    <div class="animated-shapes-container"> <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+        <div class="shape shape-5"></div>
+    </div>
 
-    <section id="Input-secuencia">
-        <label for="Seccion-botones">Oprima el boton de la pagina que desea agregar a la fila</label>
-        <br><br>
-        <div class="Seccion-botones">
-            <button class="Input-button verde" @click="AgregarPagina('1', 'verde')">1</button>
-            <button class="Input-button verde-claro" @click="AgregarPagina('2', 'verde-claro')">2</button>
-            <button class="Input-button amarillo-verdoso" @click="AgregarPagina('3', 'amarillo-verdoso')">3</button>
-            <button class="Input-button amarillo" @click="AgregarPagina('4', 'amarillo')">4</button>
-            <button class="Input-button naranja" @click="AgregarPagina('5', 'naranja')">5</button>
-            <button class="Input-button rojo" @click="AgregarPagina('6', 'rojo')">6</button>
-        </div>
-    </section>
+    <h1>Simulador de Algoritmos de Reemplazo de Páginas</h1>
 
-    <section id="Output-secuencia">
-        <p>Secuencia escogida</p>
-        <div id="Paginas-secuencia">
-            <div v-for="(pagina, index) in paginas"class="page-box" :class="pagina.color">
-                <p>{{ pagina.pagina }}</p>
-                <button class="close-btn" @click="RetirarPagina(index)">X</button>
+    <main class="container">
+
+        <section id="algoritmos-info" class="cyber-panel slide-in-top">
+            <h2 class="section-title cyber-text-glow">Información de Algoritmos</h2>
+            <div class="algoritmo-card">
+                <h3>Algoritmo FIFO (First-In, First-Out)</h3>
+                <p>FIFO es el algoritmo de reemplazo de páginas más simple. Cuando una página necesita ser reemplazada, se elige la página que lleva más tiempo en la memoria. Es fácil de implementar pero puede no ser el más eficiente, ya que una página muy usada podría ser reemplazada si fue la primera en entrar.</p>
             </div>
-        </div>
-        <p v-if="mensaje_limite">LIMITE DE PAGINAS ALCANZADO</p>
-        <br>
-        <br>
-        <button class="boton-simular" @click="Simular">SIMULAR</button>
-    </section>
+            <div class="algoritmo-card">
+                <h3>Algoritmo LRU (Least Recently Used)</h3>
+                <p>LRU es un algoritmo más sofisticado. Reemplaza la página que no ha sido utilizada durante el mayor período de tiempo. Se basa en la idea de que las páginas que se han utilizado recientemente son más propensas a ser utilizadas de nuevo en el futuro. Es más eficiente que FIFO pero más complejo de implementar.</p>
+            </div>
+        </section>
 
-    <section id="Results-secuencia">
+        <section id="Input-secuencia" class="cyber-panel slide-in-top delay-1">
+            <div class="input-group">
+                <label for="Seccion-botones" class="cyber-text-glow">Oprima el botón de la página que desea agregar a la fila:</label>
+                <div class="Seccion-botones">
+                    <button class="Input-button verde" @click="AgregarPagina('1', 'verde')">1</button>
+                    <button class="Input-button verde-claro" @click="AgregarPagina('2', 'verde-claro')">2</button>
+                    <button class="Input-button amarillo-verdoso" @click="AgregarPagina('3', 'amarillo-verdoso')">3</button>
+                    <button class="Input-button amarillo" @click="AgregarPagina('4', 'amarillo')">4</button>
+                    <button class="Input-button naranja" @click="AgregarPagina('5', 'naranja')">5</button>
+                    <button class="Input-button rojo" @click="AgregarPagina('6', 'rojo')">6</button>
+                </div>
+            </div>
+        </section>
 
-    </section>
+        <section id="Output-secuencia" class="cyber-panel slide-in-top delay-2">
+            <p class="cyber-text-glow section-subtitle">Secuencia escogida:</p>
+            <div id="Paginas-secuencia">
+                <div v-for="(pagina, index) in paginas" class="page-box pulse-animation" :class="pagina.color">
+                    <p>{{ pagina.pagina }}</p>
+                    <button class="close-btn" @click="RetirarPagina(index)">X</button>
+                </div>
+            </div>
+            <p v-if="mensaje_limite" class="error-message flicker-animation">¡LÍMITE DE PÁGINAS ALCANZADO!</p>
+            <div class="button-wrapper">
+                <button class="boton-simular glow-on-hover" @click="Simular">SIMULAR</button>
+            </div>
+        </section>
+
+        <section id="Results-secuencia" class="cyber-panel slide-in-top delay-3">
+            <h2 class="section-title cyber-text-glow">Resultados de la Simulación</h2>
+            <div class="results-grid">
+                <div class="algorithm-results">
+                    <h3>FIFO</h3>
+                    <div class="frames-container">
+                        <div class="frame-row" v-for="(step, index) in fifo_steps" :key="'fifo-step-' + index">
+                            <div class="frame-input-indicator">{{ step.page }}</div>
+                            <div class="frame-box" v-for="frame in step.frames">{{ frame }}</div>
+                            <div class="page-fault" v-if="step.fault">F</div>
+                        </div>
+                    </div>
+                    <p class="fault-count">Fallos de página: <span class="count-value">{{ fifo_faults }}</span></p>
+                </div>
+                <div class="algorithm-results">
+                    <h3>LRU</h3>
+                    <div class="frames-container">
+                        <div class="frame-row" v-for="(step, index) in lru_steps" :key="'lru-step-' + index">
+                            <div class="frame-input-indicator">{{ step.page }}</div>
+                            <div class="frame-box" v-for="frame in step.frames">{{ frame }}</div>
+                            <div class="page-fault" v-if="step.fault">F</div>
+                        </div>
+                    </div>
+                    <p class="fault-count">Fallos de página: <span class="count-value">{{ lru_faults }}</span></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
     <script type="module">
         import { createApp } from 'https://unpkg.com/petite-vue?module'
-        import { componente } from './componente.js'
+        import { componente } from './js/componente.js'
         createApp(componente).mount()
     </script>
 </body>
