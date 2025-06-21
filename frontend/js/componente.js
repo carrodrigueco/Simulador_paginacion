@@ -44,8 +44,7 @@ export const componente = {
                 const secuencia_paginas = this.paginas.map(p => p.pagina);
 
                 // Aquí iría la llamada al backend. Esto es un placeholder.
-                // Tu compañero en el backend implementará la lógica en app.py
-                // para recibir esta secuencia y devolver los resultados de la simulación.
+                // en el backend implementará la lógica en app.py para recibir esta secuencia y devolver los resultados de la simulación.
                 console.log("Simulando con secuencia:", secuencia_paginas);
 
                 try {
