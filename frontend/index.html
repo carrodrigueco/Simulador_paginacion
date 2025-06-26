@@ -21,11 +21,13 @@
 
     <main class="container">
 
+        <button class="user-manual-button glow-on-hover" @click="toggleManual">Manual de Usuario</button>
+
         <section id="algoritmos-info" class="cyber-panel slide-in-top">
             <h2 class="section-title cyber-text-glow">Información de Algoritmos</h2>
             <div class="algoritmo-card">
                 <h3>Algoritmo FIFO (First-In, First-Out)</h3>
-                <p>FIFO es el algoritmo de reemplazo de páginas más simple. Cuando una página necesita ser reemplazada, se elige la página que lleva más tiempo en la memoria. Es fácil de implementar pero puede no ser el más eficiente, ya que una página muy usada podría ser reemplazada si fue la primera en entrar.</p>
+                <p>FIFO es el algoritmo de reemplazo de páginas más simple. Cuando una página necesita ser reemplazada, se elige la página que lleva más tiempo en la memoria. Es como una cola de espera: el primero en entrar es el primero en salir. Su implementación es sencilla, pero su eficiencia puede ser limitada, ya que una página muy usada podría ser reemplazada si fue la primera en entrar.</p>
             </div>
             <div class="algoritmo-card">
                 <h3>Algoritmo LRU (Least Recently Used)</h3>
@@ -65,7 +67,7 @@
                 <button class="boton-simular glow-on-hover" @click="Simular" :disabled="simulando">SIMULAR</button>
             </div>
             <div class="button-wrapper">
-                <button class="boton-simular glow-on-hover" @click="LimpiarPaginas" :disabled="simulando">LimpiarPaginas</button>
+                <button class="boton-simular glow-on-hover" @click="LimpiarPaginas" :disabled="simulando">Limpiar Páginas</button>
             </div>
         </section>
 
@@ -81,18 +83,22 @@
             <div class="results-grid">
                 <div class="algorithm-results">
                     <h3>FIFO</h3>
-                    <div class="frames-container simulation-table-container"> <table class="simulation-table">
+                    <div class="frames-container simulation-table-container">
+                        <table class="simulation-table">
                             <thead>
                                 <tr>
                                     <th>Tiempo</th>
                                     <th>Referencia</th>
-                                    <th v-for="n in 4" :key="'fifo-m' + n">M{{ n }}</th> <th>Fallos</th>
+                                    <th v-for="n in 4" :key="'fifo-m' + n">M{{ n }}</th>
+                                    <th>Fallos</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(step, index) in fifo_steps.slice(0, current_fifo_step_index + 1)" :key="'fifo-step-table-' + index"
                                     :class="{ 'current-step': index === current_fifo_step_index, 'fault-row': step.fault }">
-                                    <td>{{ index + 1 }}</td> <td :class="{ 'fault-cell': step.fault }">{{ step.page }}</td> <td v-for="(frame, f_idx) in step.frames" :key="'fifo-frame-cell-' + index + '-' + f_idx">
+                                    <td>{{ index + 1 }}</td>
+                                    <td :class="{ 'fault-cell': step.fault }">{{ step.page }}</td>
+                                    <td v-for="(frame, f_idx) in step.frames" :key="'fifo-frame-cell-' + index + '-' + f_idx">
                                         {{ frame == null ? '' : frame }}
                                     </td>
                                     <td>
@@ -109,12 +115,14 @@
                 </div>
                 <div class="algorithm-results">
                     <h3>LRU</h3>
-                    <div class="frames-container simulation-table-container"> <table class="simulation-table">
+                    <div class="frames-container simulation-table-container">
+                        <table class="simulation-table">
                             <thead>
                                 <tr>
                                     <th>Tiempo</th>
                                     <th>Referencia</th>
-                                    <th v-for="n in 4" :key="'lru-m' + n">M{{ n }}</th> <th>Fallos</th>
+                                    <th v-for="n in 4" :key="'lru-m' + n">M{{ n }}</th>
+                                    <th>Fallos</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -130,7 +138,7 @@
                                     </td>
                                 </tr>
                                 <tr v-if="lru_steps.length === 0 || current_lru_step_index === -1">
-                                    <td colspan="7" class="empty-results-message">Presiona SIMULAR y luego Reproducir para ver la simulación.</td>
+                                    <td colspan="7" class="empty-results-message">Presiona SIMULAR y luego Reproducir para ver la la simulación.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -142,9 +150,197 @@
 
     </main>
 
+    <div class="manual-modal-overlay" v-if="showManual" @click.self="toggleManual">
+        <div class="manual-modal-content cyber-panel">
+            <button class="close-modal-button" @click="toggleManual">X</button>
+            <h2 class="section-title cyber-text-glow">Manual de Usuario - Simulador de Paginación</h2>
+
+            <div class="manual-navigation">
+                <button class="nav-button" :class="{ 'active': currentManualSection === 'introduccion' }" @click="setManualSection('introduccion')">Introducción</button>
+                <button class="nav-button" :class="{ 'active': currentManualSection === 'algoritmos' }" @click="setManualSection('algoritmos')">Algoritmos</button>
+                <button class="nav-button" :class="{ 'active': currentManualSection === 'uso-simulador' }" @click="setManualSection('uso-simulador')">Uso del Simulador</button>
+                <button class="nav-button" :class="{ 'active': currentManualSection === 'interpretacion' }" @click="setManualSection('interpretacion')">Interpretación</button>
+                <button class="nav-button" :class="{ 'active': currentManualSection === 'codigo' }" @click="setManualSection('codigo')">Funcionamiento del Código</button>
+                <button class="nav-button" :class="{ 'active': currentManualSection === 'consideraciones' }" @click="setManualSection('consideraciones')">Consideraciones</button>
+            </div>
+
+            <div class="manual-section-content">
+                <div v-if="currentManualSection === 'introduccion'">
+                    <h3>Bienvenido al Simulador de Algoritmos de Reemplazo de Páginas</h3>
+                    <p>Esta aplicación permite visualizar el comportamiento de dos algoritmos fundamentales en la gestión de memoria de sistemas operativos: FIFO (First-In, First-Out) y LRU (Least Recently Used). Podrás definir una secuencia de páginas y observar cómo cada algoritmo gestiona la memoria principal (RAM) a lo largo del tiempo, registrando los fallos de página.</p>
+                    <p>Diseñado con una interfaz intuitiva y una estética cyberpunk, este simulador es una herramienta educativa para comprender los conceptos de paginación de memoria de manera práctica y visual.</p>
+                </div>
+
+                <div v-if="currentManualSection === 'algoritmos'">
+                    <h3>Algoritmos de Reemplazo de Páginas</h3>
+                    <h4>1. Algoritmo FIFO (First-In, First-Out)</h4>
+                    <p>FIFO es el algoritmo más simple y directo. Cuando la memoria está llena y una nueva página necesita ser cargada, FIFO reemplaza la página que lleva más tiempo en la memoria (la primera que entró). Es como una cola de espera: el primero en entrar es el primero en salir. Su implementación es sencilla, pero su eficiencia puede ser limitada, ya que una página muy utilizada pero antigua podría ser desalojada.</p>
+                    <h4>2. Algoritmo LRU (Least Recently Used)</h4>
+                    <p>LRU es un algoritmo más complejo y generalmente más eficiente que FIFO. Cuando se necesita reemplazar una página, LRU selecciona aquella que no ha sido utilizada durante el período de tiempo más largo. La premisa es que las páginas usadas recientemente tienen más probabilidades de ser usadas de nuevo en el futuro. Requiere un mecanismo para rastrear el "tiempo" o el uso de cada página.</p>
+                </div>
+
+                <div v-if="currentManualSection === 'uso-simulador'">
+                    <h3>Uso del Simulador</h3>
+                    <ol>
+                        <li><strong>Selección de Páginas:</strong> En la sección "Oprima el botón de la página...", haz clic en los botones numerados (1-10) para agregar páginas a tu secuencia. El orden en que las agregues definirá la secuencia de referencias de página.</li>
+                        <li><strong>Secuencia Escogida:</strong> Las páginas seleccionadas aparecerán en la sección "Secuencia escogida". Puedes retirar una página de la secuencia haciendo clic en el botón 'X' junto a ella.
+                            <ul>
+                                <li><strong>Límite de Páginas:</strong> Existe un límite máximo de páginas que puedes agregar a la secuencia.</li>
+                                <li><strong>Limpiar Secuencia:</strong> El botón "Limpiar Páginas" te permite vaciar completamente la secuencia de páginas actual.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Simular:</strong> Una vez que hayas definido tu secuencia, haz clic en el botón "SIMULAR". El sistema procesará la secuencia con ambos algoritmos (FIFO y LRU) y preparará los resultados.
+                            <ul>
+                                <li><strong>Desactivación de Botones:</strong> Durante la simulación, los botones "SIMULAR" y "Limpiar Páginas" se deshabilitarán automáticamente para evitar interrupciones y garantizar la integridad de la simulación.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Controles de Simulación:</strong> En la sección "Resultados de la Simulación", encontrarás:
+                            <ul>
+                                <li><strong>Reproducir:</strong> Inicia la visualización paso a paso de la simulación.</li>
+                                <li><strong>Pausar:</b> Detiene la simulación en el paso actual.</li>
+                                <li><strong>Reiniciar:</strong> Vuelve al inicio de la simulación y limpia la secuencia de páginas.</li>
+                                <li><strong>Velocidad:</strong> Un deslizador para ajustar la rapidez con la que avanza la simulación.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <div v-if="currentManualSection === 'interpretacion'">
+                    <h3>Interpretación de los Resultados</h3>
+                    <p>La sección de resultados muestra una tabla para cada algoritmo (FIFO y LRU), con el siguiente formato:</p>
+                    <ul>
+                        <li><strong>Tiempo:</strong> El número de paso en la secuencia de referencia.</li>
+                        <li><strong>Referencia:</strong> La página que se intentó acceder en ese paso. Si la celda y la fila están resaltadas en rosa, indica un "fallo de página" (Page Fault).</li>
+                        <li><strong>M1, M2, M3, M4:</strong> Representan los marcos (espacios) de memoria RAM disponibles. El número indica la página actualmente cargada en ese marco.</li>
+                        <li><strong>Fallos:</strong> Un indicador 'F' en esta columna significa que en ese paso se produjo un fallo de página, lo que implicó cargar la página deseada desde el disco y posiblemente desalojar otra página de la RAM.</li>
+                    </ul>
+                    <p>Al final de cada tabla, se muestra el "Total de Fallos de Página", un indicador clave de la eficiencia del algoritmo para una secuencia dada: menos fallos generalmente significan mejor rendimiento.</p>
+                </div>
+
+                <div v-if="currentManualSection === 'codigo'">
+                    <h3>Estructura y Funcionamiento del Código</h3>
+                    <p>Este simulador está dividido en dos partes principales: el <strong>Frontend</strong> (interfaz de usuario) y el <strong>Backend</strong> (lógica de simulación y servidor). La comunicación entre ambos se realiza a través de peticiones HTTP.</p>
+
+                    <h4>1. Estructura de Archivos</h4>
+                    <p>El proyecto se organiza de la siguiente manera:</p>
+                    <pre><code>
+simulador/
+├── backend/
+│   └── app.py
+└── frontend/
+    ├── css/
+    │   └── style.css
+    ├── js/
+    │   └── componente.js
+    └── index.html
+                    </code></pre>
+                    <p>Esta estructura modular facilita el desarrollo y la separación de responsabilidades entre el equipo.</p>
+
+                    <h4>2. Frontend (`index.html`, `style.css`, `componente.js`)</h4>
+                    <p>El Frontend es la parte visible de la aplicación, construida con HTML, CSS y JavaScript (Petite-Vue).</p>
+                    <ul>
+                        <li><strong>`index.html` (Estructura y Contenido):</strong> Es el archivo principal que define la estructura de la página.
+                            <ul>
+                                <li>Contiene todas las secciones visibles (información de algoritmos, entrada de secuencia, resultados) y el modal del manual de usuario.</li>
+                                <li>Utiliza directivas de Petite-Vue (`v-for`, `v-if`, `@click`, `:class`, `:disabled`) para el renderizado dinámico de la interfaz y la interactividad.</li>
+                                <li>Se han añadido **botones para páginas del 7 al 10** en la sección de entrada de secuencia, expandiendo las opciones de páginas de referencia.</li>
+                                <li>Se ha incluido un **botón "Limpiar Páginas"** que permite al usuario vaciar la secuencia de páginas actual con un solo clic.</li>
+                                <li>Los botones "SIMULAR" y "Limpiar Páginas" incorporan la directiva `:disabled="simulando"` para **deshabilitarse automáticamente mientras una simulación está en curso**, evitando interrupciones y garantizar la integridad de la simulación.</li>
+                                <li>Incluye enlaces a `style.css` y `componente.js`.</li>
+                            </ul>
+                        </li>
+                        <li><strong>`style.css` (Diseño y Estética):</strong> Este archivo es responsable de toda la apariencia visual de la aplicación. Implementa la estética "cyberpunk" mediante:
+                            <ul>
+                                <li>**Paleta de Colores:** Tonos morados, azules cian y destellos de neón (rosa, verde brillante).</li>
+                                <li>**Tipografía:** Fuentes "Orbitron" para títulos y "Share Tech Mono" para texto general, que evocan una sensación futurista.</li>
+                                <li>**Efectos Visuales:**
+                                    <ul>
+                                        <li>**Glassmorphism:** Aplicado a los paneles principales (`.cyber-panel`) con `background-color: rgba(...)` y `backdrop-filter: blur(...) saturate(...)` para crear un efecto de vidrio translúcido.</li>
+                                        <li>**Animaciones de Fondo:** El `div.cyber-glow-bg` y las `.shape` animadas (`.animated-shapes-container`) crean un fondo dinámico con luces pulsantes y formas geométricas que se mueven y rotan, añadiendo profundidad y dinamismo.</li>
+                                        <li>**Animaciones de Interfaz:** Transiciones (`transition`) y animaciones (`@keyframes`) en botones (efectos de brillo al pasar el ratón), secciones (aparición `slide-in-top`), y elementos de simulación (pulsaciones en celdas activas, parpadeos en mensajes de error).</li>
+                                        <li>**Bordes con Gradientes:** Utilización de `border-image` para dar un toque neón a los bordes de los paneles y botones.</li>
+                                    </ul>
+                                </li>
+                                <li>**Estilos de Botones Adicionales:** Se han agregado clases de color (`.rojo-oscuro`, `.burdeos`, `.marron`, `.marron-oscuro`) para las nuevas páginas (7-10) en la sección de entrada, asegurando que se integren visualmente con los botones existentes.</li>
+                                <li>**Estilos de Botones Deshabilitados:** Se han definido estilos específicos para los botones "SIMULAR" y "Limpiar Páginas" cuando están deshabilitados, haciendo que se vean en tonos de gris, sin sombras activas y con un cursor de "prohibido" para una clara indicación visual.</li>
+                                <li>**Diseño Responsivo:** Uso de `@media queries` para adaptar la interfaz a diferentes tamaños de pantalla (móviles, tablets), asegurando una buena experiencia de usuario en cualquier dispositivo.</li>
+                            </ul>
+                        </li>
+                        <li><strong>`componente.js` (Lógica Frontend con Petite-Vue):</strong> Es el cerebro del frontend. Gestiona el estado de la aplicación y la interactividad.
+                            <ul>
+                                <li><strong>Gestión de Secuencia:</strong> Maneja la adición y eliminación de páginas en la secuencia (`paginas`). Se ha añadido el método `LimpiarPaginas()` para vaciar la secuencia de páginas, reiniciando la selección del usuario.</li>
+                                <li><strong>Control de Simulación Activa:</strong> La nueva propiedad `simulando` (booleana) se establece en `true` al inicio de la función `Simular()` y en `false` en su bloque `finally` (para garantizar que se restablezca incluso si ocurre un error). Esta propiedad es crucial para controlar el estado deshabilitado de los botones "SIMULAR" y "Limpiar Páginas".</li>
+                                <li><strong>Comunicación con Backend:</strong> La función `Simular()` realiza una petición `POST` a la ruta `/simulate` del backend, enviando la secuencia de páginas y esperando los resultados de la simulación.</li>
+                                <li><strong>Simulación en Tiempo Real:</strong> Al recibir los resultados, `playSimulation()` utiliza `setInterval()` para avanzar y mostrar los pasos de la simulación uno por uno en la tabla de resultados. Los métodos `pauseSimulation()` y `resetSimulation()` permiten controlar esta reproducción. Se ha implementado también el desplazamiento automático de la tabla para seguir el paso actual, mejorando la visibilidad durante la animación.</li>
+                                <li><strong>Control del Manual de Usuario:</strong> Las propiedades `showManual` y `currentManualSection`, junto con los métodos `toggleManual()` y `setManualSection()`, controlan la visibilidad y navegación dentro del manual interactivo, incluyendo la sección dedicada a la documentación del código.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>3. Backend (`app.py`)</h4>
+                    <p>El Backend, desarrollado con Flask (Python), es responsable de servir los archivos estáticos del frontend y de ejecutar la lógica de simulación de los algoritmos de reemplazo de páginas.</p>
+                    <ul>
+                        <li><strong>Servidor de Archivos Estáticos:</strong>
+                            <ul>
+                                <li>Configuración de `Flask`: Se inicializa Flask con `static_folder='../frontend'` y `static_url_path=''` para servir los archivos HTML, CSS y JavaScript directamente desde la carpeta `frontend` sin prefijos URL adicionales.</li>
+                                <li>Ruta principal (`@app.route("/")`): Sirve el `index.html` como la página principal, actuando como el punto de entrada de la aplicación.</li>
+                            </ul>
+                        </li>
+                        <li><strong>API de Simulación (`@app.post("/simulate")`):</strong>
+                            <ul>
+                                <li><strong>Recepción de Datos:</strong> Espera una petición `POST` desde el frontend, recibiendo una secuencia de páginas en formato JSON que el usuario desea simular.</li>
+                                <li><strong>Función `pagina_en_ram()`:</strong> Una función auxiliar crucial que verifica si una página específica ya se encuentra cargada en la memoria RAM (`ram`). Es capaz de manejar las estructuras de datos tanto de FIFO (tuplas `[llegada, pagina]`) como de LRU (diccionarios `{pagina: [llegada, ultimo_uso]}`).</li>
+                                <li><strong>Implementación FIFO (First-In, First-Out):</strong>
+                                    <ul>
+                                        <li>Mantiene una lista `RAM_fifo` que simula los 4 marcos de memoria disponibles. Cada elemento en `RAM_fifo` es una tupla `[llegada, pagina]`, donde `llegada` es un contador para rastrear el orden de entrada de la página.</li>
+                                        <li>Para cada `pagina_ref` en la secuencia de entrada:
+                                            <ul>
+                                                <li>Verifica si la página ya está en `RAM_fifo`.</li>
+                                                <li>Si no está y hay espacio disponible, la página se carga en el último espacio disponible de `RAM_fifo` y se registra como un fallo de página.</li>
+                                                <li>Si no hay espacio, se busca la página con el menor valor de `llegada` (la página más antigua) para reemplazarla. Tras el reemplazo, el contador de `llegada` de las páginas no reemplazadas se decrementa para simular el paso del tiempo y mantener la lógica FIFO.</li>
+                                                <li>Se registra el estado de la simulación en `fifo["steps"]`, incluyendo el tiempo del paso, la página referenciada, el estado actual de los marcos (`frames`) y si hubo un fallo.</li>
+                                            </ul>
+                                        </li>
+                                        <li>El conteo total de fallos (`fifo["faults"]`) se incrementa cada vez que ocurre un fallo de página.</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Implementación LRU (Least Recently Used):</strong>
+                                    <ul>
+                                        <li>Mantiene una lista `RAM_lru` para simular los 4 marcos de memoria. Cada marco almacena un diccionario `{pagina: [tiempo_carga, ultimo_uso]}`, donde `ultimo_uso` es un contador que registra el momento más reciente en que la página fue accedida o cargada.</li>
+                                        <li>Para cada `pagina_ref` en la secuencia de entrada:
+                                            <ul>
+                                                <li>Incrementa un contador global `lru_time` para rastrear el tiempo de uso.</li>
+                                                <li>Verifica si la página ya está en `RAM_lru`. Si lo está, se actualiza su `ultimo_uso` al `lru_time` actual.</li>
+                                                <li>Si no está y hay espacio, la página se carga y se marca como fallo. Su `tiempo_carga` y `ultimo_uso` se establecen al `lru_time` actual.</li>
+                                                <li>Si la RAM está llena, busca la página con el `min_lru_usage_time` (la menos recientemente usada) para reemplazarla con la nueva `pagina_ref`.</li>
+                                                <li>Se registra un "paso" en `lru["steps"]` incluyendo el tiempo, la página referenciada, el estado actual de los marcos (`frames`) y si hubo un fallo.</li>
+                                            </ul>
+                                        </li>
+                                        <li>El conteo total de fallos (`lru["faults"]`) se incrementa cada vez que se produce un fallo de página.</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Envío de Resultados:</strong> Una vez completadas ambas simulaciones, la función devuelve un objeto JSON que contiene los resultados detallados (`steps` y `faults`) para ambos algoritmos al frontend, listos para su procesamiento y visualización en tiempo real.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p>Esta división entre Frontend y Backend permite un desarrollo colaborativo eficiente y una clara separación de la lógica de presentación y la lógica de negocio.</p>
+                </div>
+
+                <div v-if="currentManualSection === 'consideraciones'">
+                    <h3>Consideraciones Adicionales</h3>
+                    <ul>
+                        <li>El simulador está configurado con 4 marcos de memoria RAM.</li>
+                        <li>Este simulador está diseñado con fines educativos y simplifica ciertos aspectos de la gestión de memoria real para facilitar la comprensión.</li>
+                        <li>El diseño está inspirado en la estética cyberpunk para una experiencia visual inmersiva. ¡Disfrútalo!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { createApp } from 'https://unpkg.com/petite-vue?module'
-        import { componente } from './js/componente.js'
+        import { componente } from './js/componente.js' // RUTA JS VERIFICADA
         createApp(componente).mount()
     </script>
 </body>
