@@ -79,7 +79,69 @@ def simulando():
         })
     
     # Lógica para LRU
-    # Por ahora, un mock para que el frontend no falle
+    RAM_lru: list = [None, None, None, None]  # 4 marcos
+    espacio_lru: int = 4
+    llegada_lru: int = 1
+    lru["faults"] = 0
+    lru["steps"] = []
+
+    for time_step, pagina_ref in enumerate(data["sequence"]):
+        is_fault = False
+
+        # Verificar si la página ya está en RAM
+        pagina_ya_en_ram = False
+        for index in range(4):
+            if RAM_lru[index] is not None and pagina_ref in RAM_lru[index]:
+                # Actualizar el tiempo de último uso
+                RAM_lru[index][pagina_ref][1] = llegada_lru
+                pagina_ya_en_ram = True
+                break
+
+        if not pagina_ya_en_ram:
+            # Fallo de página
+            is_fault = True
+            lru["faults"] += 1
+
+            if espacio_lru > 0:
+                # Hay espacio disponible, cargamos sin reemplazar
+                RAM_lru[-espacio_lru] = {pagina_ref: [llegada_lru, llegada_lru]}
+                espacio_lru -= 1
+            else:
+                # RAM llena: aplicar política LRU (reemplazar la menos recientemente usada)
+                menor_uso = None
+                index_reemplazo = None
+
+                for posicion, bloque in enumerate(RAM_lru):
+                    for pagina_cargada, rangos in bloque.items():
+                        if menor_uso is None or rangos[1] < menor_uso:
+                            menor_uso = rangos[1]
+                            index_reemplazo = posicion
+
+                # Reemplazo
+                RAM_lru[index_reemplazo] = {pagina_ref: [llegada_lru, llegada_lru]}
+
+        # Avanzar tiempo lógico
+        llegada_lru += 1
+
+        # Armar el estado actual de los frames para el frontend
+        frames_estado = []
+        for bloque in RAM_lru:
+            if bloque is not None:
+                pagina_actual = list(bloque.keys())[0]
+                frames_estado.append(str(pagina_actual))
+            else:
+                frames_estado.append('')  # Marco vacío
+
+        # Guardar el paso
+        lru["steps"].append({
+            "time": time_step + 1,
+            "page": pagina_ref,
+            "frames": frames_estado,
+            "fault": is_fault
+        })
+
+
+    """
     mock_lru_steps = []
     mock_lru_faults = 0
     # Simplemente rellenar con algunos datos vacíos o un mock simple si se quiere ver la tabla
@@ -92,6 +154,7 @@ def simulando():
         })
     lru["steps"] = mock_lru_steps
     lru["faults"] = mock_lru_faults
+    """
 
 
     return jsonify({"fifo": fifo, "lru": lru})
