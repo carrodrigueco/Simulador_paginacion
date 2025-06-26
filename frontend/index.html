@@ -43,6 +43,11 @@
                     <button class="Input-button amarillo" @click="AgregarPagina('4', 'amarillo')">4</button>
                     <button class="Input-button naranja" @click="AgregarPagina('5', 'naranja')">5</button>
                     <button class="Input-button rojo" @click="AgregarPagina('6', 'rojo')">6</button>
+                    <button class="Input-button rojo-oscuro" @click="AgregarPagina('7', 'rojo-oscuro')">7</button>
+                    <button class="Input-button burdeos" @click="AgregarPagina('8', 'burdeos')">8</button>
+                    <button class="Input-button marron" @click="AgregarPagina('9', 'marron')">9</button>
+                    <button class="Input-button marron-oscuro" @click="AgregarPagina('10', 'marron-oscuro')">10</button>
+
                 </div>
             </div>
         </section>
@@ -57,7 +62,10 @@
             </div>
             <p v-if="mensaje_limite" class="error-message flicker-animation">¡LÍMITE DE PÁGINAS ALCANZADO!</p>
             <div class="button-wrapper">
-                <button class="boton-simular glow-on-hover" @click="Simular">SIMULAR</button>
+                <button class="boton-simular glow-on-hover" @click="Simular" :disabled="simulando">SIMULAR</button>
+            </div>
+            <div class="button-wrapper">
+                <button class="boton-simular glow-on-hover" @click="LimpiarPaginas" :disabled="simulando">LimpiarPaginas</button>
             </div>
         </section>
 

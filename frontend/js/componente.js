@@ -3,6 +3,7 @@ export const componente = {
             paginas: [],
             mensaje_limite: false,
             limite_simulacion: 12,
+            simulando: false,
             fifo_steps: [],
             fifo_faults: 0,
             lru_steps: [],
@@ -21,7 +22,7 @@ export const componente = {
                 return this.count + 1
             },
             // methods
-            AgregarPagina(pagina, color, value)
+            AgregarPagina(pagina, color)
             {
                 if(this.paginas.length < this.limite_simulacion)
                 {
@@ -31,6 +32,11 @@ export const componente = {
                 {
                     this.mensaje_limite = true;
                 }
+            },
+            LimpiarPaginas()
+            {
+                this.paginas = [];
+                this.mensaje_limite = false;
             },
             RetirarPagina(index)
             {
@@ -43,6 +49,7 @@ export const componente = {
             async Simular()
             {
                 // Limpiamos y reiniciamos todo antes de una nueva simulación
+                this.simulando = true;
                 this.pauseSimulation(); // Asegurarse de que cualquier simulación anterior esté detenida
                 this.fifo_steps = [];
                 this.fifo_faults = 0;
@@ -149,9 +156,11 @@ export const componente = {
             },
 
             resetSimulation() {
+                this.simulando = false;
                 this.pauseSimulation(); // Detener cualquier simulación en curso
                 this.current_fifo_step_index = -1; // Reiniciar índices
                 this.current_lru_step_index = -1;
+                this.LimpiarPaginas();
                 console.log("Simulación reiniciada.");
             },
 
