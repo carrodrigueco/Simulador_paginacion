@@ -946,3 +946,281 @@ h1 {
         font-size: 0.7em;
     }
 }
+
+/* Estilos para el Modal del Manual de Usuario */
+.manual-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegura que esté por encima de todo lo demás */
+    backdrop-filter: blur(5px); /* Desenfoque ligero en el overlay */
+    animation: fadeIn 0.3s ease-out; /* Animación de aparición */
+}
+
+.manual-modal-content {
+    width: 90%;
+    max-width: 900px; /* Ancho máximo para el manual */
+    max-height: 90vh; /* Altura máxima para permitir scroll si es largo */
+    overflow-y: auto; /* Habilita scroll dentro del manual */
+    padding: 30px; /* Más padding para el contenido */
+    position: relative;
+    transform: scale(0.9); /* Inicio de la animación de zoom */
+    opacity: 0; /* Inicio de la animación de fade */
+    animation: scaleIn 0.3s ease-out forwards; /* Animación de aparición con zoom */
+}
+
+/* Animación de entrada para el modal */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Animación de salida para el modal (opcional, necesitaría una clase JS para activarse) */
+/* .manual-modal-overlay.fade-out { animation: fadeOut 0.3s ease-out forwards; }
+.manual-modal-content.scale-out { animation: scaleOut 0.3s ease-out forwards; }
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes scaleOut {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(0.9); opacity: 0; }
+} */
+
+
+.close-modal-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: #e91e63; /* Rosa neón */
+    color: white;
+    border: 2px solid #ff4081; /* Borde rosa más brillante */
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(233, 30, 99, 0.7);
+    font-family: 'Orbitron', sans-serif;
+}
+
+.close-modal-button:hover {
+    background-color: #c2185b; /* Tono más oscuro al pasar el ratón */
+    transform: rotate(90deg); /* Pequeña rotación */
+    box-shadow: 0 0 15px rgba(233, 30, 99, 1);
+}
+
+/* Estilos para el botón Manual de Usuario en la página principal */
+.user-manual-button {
+    background: linear-gradient(135deg, #00bcd4, #00838f); /* Cian azulado */
+    color: #ffffff;
+    border: 1px solid;
+    border-image: linear-gradient(45deg, #00e5ff, #00bcd4) 1; /* Borde cian */
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 188, 212, 0.3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Orbitron', sans-serif;
+    display: block; /* Ocupa su propia línea */
+    margin: 20px auto; /* Centrar en la parte superior del contenedor */
+    position: relative;
+    overflow: hidden;
+}
+
+.user-manual-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+    opacity: 0;
+}
+
+.user-manual-button:hover::before {
+    width: 200%;
+    height: 200%;
+    opacity: 1;
+}
+
+.user-manual-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(0, 188, 212, 0.5), 0 0 20px rgba(0, 188, 212, 0.8);
+    background: linear-gradient(135deg, #26c6da, #00bcd4);
+}
+
+
+/* Estilos para la Navegación del Manual */
+.manual-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #673ab7; /* Línea separadora morada */
+    padding-bottom: 15px;
+}
+
+.nav-button {
+    background-color: rgba(70, 30, 100, 0.7); /* Fondo morado oscuro */
+    color: #e0e0e0;
+    border: 1px solid #9c27b0; /* Borde morado */
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.nav-button:hover {
+    background-color: rgba(90, 40, 120, 0.9);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(156, 39, 176, 0.7);
+}
+
+.nav-button.active {
+    background-color: #9c27b0; /* Morado sólido para activo */
+    color: #64ffda; /* Texto cian/verde brillante */
+    border-color: #64ffda; /* Borde que coincide */
+    box-shadow: 0 0 15px rgba(100, 255, 218, 0.8);
+    font-weight: bold;
+}
+
+/* Estilos para el Contenido de las Secciones del Manual */
+.manual-section-content h3, .manual-section-content h4 {
+    font-family: 'Orbitron', sans-serif;
+    color: #00bcd4; /* Cian brillante */
+    text-shadow: 0 0 5px rgba(0, 188, 212, 0.5);
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.manual-section-content p, .manual-section-content li {
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: #d0d0d0;
+    margin-bottom: 10px;
+}
+
+.manual-section-content ol, .manual-section-content ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.manual-section-content li {
+    list-style-type: disc; /* Para UL */
+    margin-bottom: 5px;
+}
+
+.manual-section-content ol li {
+    list-style-type: decimal; /* Para OL */
+}
+
+/* Ajustes de responsividad para el manual */
+@media (max-width: 767px) {
+    .manual-modal-content {
+        padding: 20px; /* Menos padding en móviles */
+        width: 95%; /* Ocupa más ancho */
+    }
+    .close-modal-button {
+        width: 30px;
+        height: 30px;
+        font-size: 1em;
+        top: 10px;
+        right: 10px;
+    }
+    .manual-navigation {
+        flex-direction: column; /* Apila los botones de navegación */
+        gap: 8px;
+    }
+    .nav-button {
+        width: 100%; /* Botones de navegación ocupan todo el ancho */
+    }
+    .manual-section-content h3, .manual-section-content h4 {
+        font-size: 1.1em;
+    }
+    .manual-section-content p, .manual-section-content li {
+        font-size: 0.85em;
+    }
+    .user-manual-button {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+}
+.manual-section-content h3, .manual-section-content h4 {
+    font-family: 'Orbitron', sans-serif;
+    color: #00bcd4; /* Cian brillante */
+    text-shadow: 0 0 5px rgba(0, 188, 212, 0.5);
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.manual-section-content p, .manual-section-content li {
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: #d0d0d0;
+    margin-bottom: 10px;
+}
+
+.manual-section-content ol, .manual-section-content ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.manual-section-content li {
+    list-style-type: disc; /* Para UL */
+    margin-bottom: 5px;
+}
+
+.manual-section-content ol li {
+    list-style-type: decimal; /* Para OL */
+}
+
+/* Estilos específicos para bloques de código */
+.manual-section-content pre {
+    background-color: rgba(20, 10, 30, 0.8); /* Fondo oscuro para el código */
+    border: 1px solid #673ab7; /* Borde morado */
+    border-radius: 5px;
+    padding: 15px;
+    overflow-x: auto; /* Permite el scroll horizontal si el código es largo */
+    margin: 15px 0;
+    box-shadow: 0 0 10px rgba(103, 58, 183, 0.4);
+}
+
+.manual-section-content code {
+    font-family: 'Share Tech Mono', monospace; /* Misma fuente que el body para el código */
+    color: #aeea00; /* Verde neón para el código */
+    font-size: 0.9em;
+    line-height: 1.4;
+    display: block; /* Asegura que 'code' ocupe su propia línea dentro de 'pre' */
+}

@@ -8,12 +8,16 @@ export const componente = {
             lru_steps: [],
             lru_faults: 0,
 
-            // Nuevas propiedades para la simulación en tiempo real
-            current_fifo_step_index: -1, // Índice del paso actual de FIFO que se muestra
-            current_lru_step_index: -1, // Índice del paso actual de LRU que se muestra
-            simulation_interval_id: null, // ID del intervalo para pausar/reproducir
-            simulation_speed: 1000, // Velocidad de la simulación en ms (1000ms = 1 segundo por paso)
-            simulation_active: false, // Indica si se ha simulado algo ya
+            // Propiedades para la simulación en tiempo real
+            current_fifo_step_index: -1,
+            current_lru_step_index: -1,
+            simulation_interval_id: null,
+            simulation_speed: 1000,
+            simulation_active: false,
+
+            // Nuevas propiedades para el manual de usuario
+            showManual: false,
+            currentManualSection: 'introduccion', // Sección actual del manual
 
             // getters
             get plusOne()
@@ -42,15 +46,14 @@ export const componente = {
             },
             async Simular()
             {
-                // Limpiamos y reiniciamos todo antes de una nueva simulación
-                this.pauseSimulation(); // Asegurarse de que cualquier simulación anterior esté detenida
+                this.pauseSimulation();
                 this.fifo_steps = [];
                 this.fifo_faults = 0;
                 this.lru_steps = [];
                 this.lru_faults = 0;
-                this.current_fifo_step_index = -1; // Reiniciar el índice de visualización
+                this.current_fifo_step_index = -1;
                 this.current_lru_step_index = -1;
-                this.simulation_active = false; // Se activa al recibir resultados
+                this.simulation_active = false;
 
                 const secuencia_paginas = this.paginas.map(p => p.pagina);
 
@@ -79,62 +82,64 @@ export const componente = {
                     const data = await response.json();
                     console.log("Resultados de simulación recibidos:", data);
 
-                    // Almacenamos los pasos completos de la simulación
                     this.fifo_steps = data.fifo.steps;
                     this.fifo_faults = data.fifo.faults;
                     this.lru_steps = data.lru.steps;
                     this.lru_faults = data.lru.faults;
 
-                    this.simulation_active = true; // La simulación está lista para reproducirse
-                    // Opcional: Iniciar la reproducción automáticamente al recibir los resultados
-                    // this.playSimulation(); 
+                    this.simulation_active = true;
                 }
                 catch (error)
                 {
                     console.error("Error al simular:", error);
                     alert("Ocurrió un error al simular. Por favor, revisa la consola para más detalles.");
-                    this.simulation_active = false; // En caso de error, no está activa
+                    this.simulation_active = false;
                 }
             },
 
-            // Nuevos métodos para controlar la simulación en tiempo real
             playSimulation() {
                 if (!this.simulation_active || this.fifo_steps.length === 0) {
                     alert("Por favor, simule una secuencia primero.");
                     return;
                 }
-                // Si ya está reproduciéndose o ha terminado, no hacer nada o reiniciar
                 if (this.simulation_interval_id !== null) return;
                 
-                // Si ya llegó al final, reiniciarla antes de reproducir
                 if (this.current_fifo_step_index >= this.fifo_steps.length - 1 && this.current_lru_step_index >= this.lru_steps.length - 1) {
                     this.resetSimulation();
                 }
 
-                // Iniciar o reanudar la simulación
                 this.simulation_interval_id = setInterval(() => {
                     let fifo_done = false;
                     let lru_done = false;
 
-                    // Avanzar paso FIFO
                     if (this.current_fifo_step_index < this.fifo_steps.length - 1) {
                         this.current_fifo_step_index++;
+                        this.$nextTick(() => {
+                            const currentFifoRow = document.querySelector(`.algorithm-results:first-child .simulation-table tbody tr.current-step`);
+                            if (currentFifoRow) {
+                                currentFifoRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                        });
                     } else {
                         fifo_done = true;
                     }
 
-                    // Avanzar paso LRU (si hay datos, si no, se asume hecho)
                     if (this.lru_steps.length > 0 && this.current_lru_step_index < this.lru_steps.length - 1) {
                         this.current_lru_step_index++;
+                        this.$nextTick(() => {
+                            const currentLruRow = document.querySelector(`.algorithm-results:last-child .simulation-table tbody tr.current-step`);
+                            if (currentLruRow) {
+                                currentLruRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                        });
                     } else if (this.lru_steps.length === 0) {
-                        lru_done = true; // Si no hay datos LRU, se considera completado
+                        lru_done = true;
                     } else {
                         lru_done = true;
                     }
 
-                    // Si ambas simulaciones han llegado a su fin
                     if (fifo_done && lru_done) {
-                        this.pauseSimulation(); // Pausar al final
+                        this.pauseSimulation();
                         console.log("Simulación completa.");
                     }
                 }, this.simulation_speed);
@@ -149,18 +154,26 @@ export const componente = {
             },
 
             resetSimulation() {
-                this.pauseSimulation(); // Detener cualquier simulación en curso
-                this.current_fifo_step_index = -1; // Reiniciar índices
+                this.pauseSimulation();
+                this.current_fifo_step_index = -1;
                 this.current_lru_step_index = -1;
                 console.log("Simulación reiniciada.");
             },
 
             updateSimulationSpeed(event) {
                 this.simulation_speed = parseInt(event.target.value);
-                // Si la simulación está activa, pausarla y reiniciarla con la nueva velocidad
                 if (this.simulation_interval_id !== null) {
                     this.pauseSimulation();
                     this.playSimulation();
                 }
+            },
+
+            // Métodos para el manual de usuario
+            toggleManual() {
+                this.showManual = !this.showManual;
+                document.body.style.overflow = this.showManual ? 'hidden' : ''; // Evita el scroll del fondo
+            },
+            setManualSection(sectionName) {
+                this.currentManualSection = sectionName;
             }
         };
