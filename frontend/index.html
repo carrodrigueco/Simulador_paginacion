@@ -9,7 +9,8 @@
 </head>
 <body>
     <div class="cyber-glow-bg"></div>
-    <div class="animated-shapes-container"> <div class="shape shape-1"></div>
+    <div class="animated-shapes-container">
+        <div class="shape shape-1"></div>
         <div class="shape shape-2"></div>
         <div class="shape shape-3"></div>
         <div class="shape shape-4"></div>
@@ -62,26 +63,69 @@
 
         <section id="Results-secuencia" class="cyber-panel slide-in-top delay-3">
             <h2 class="section-title cyber-text-glow">Resultados de la Simulación</h2>
+            <div class="simulation-controls">
+                <button class="control-button play-button" @click="playSimulation">Reproducir</button>
+                <button class="control-button pause-button" @click="pauseSimulation">Pausar</button>
+                <button class="control-button reset-button" @click="resetSimulation">Reiniciar</button>
+                <label for="speed-slider" class="cyber-text-glow">Velocidad:</label>
+                <input type="range" id="speed-slider" min="100" max="2000" v-model="simulation_speed" @input="updateSimulationSpeed">
+            </div>
             <div class="results-grid">
                 <div class="algorithm-results">
                     <h3>FIFO</h3>
-                    <div class="frames-container">
-                        <div class="frame-row" v-for="(step, index) in fifo_steps" :key="'fifo-step-' + index">
-                            <div class="frame-input-indicator">{{ step.page }}</div>
-                            <div class="frame-box" v-for="frame in step.frames">{{ frame }}</div>
-                            <div class="page-fault" v-if="step.fault">F</div>
-                        </div>
+                    <div class="frames-container simulation-table-container"> <table class="simulation-table">
+                            <thead>
+                                <tr>
+                                    <th>Tiempo</th>
+                                    <th>Referencia</th>
+                                    <th v-for="n in 4" :key="'fifo-m' + n">M{{ n }}</th> <th>Fallos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(step, index) in fifo_steps.slice(0, current_fifo_step_index + 1)" :key="'fifo-step-table-' + index"
+                                    :class="{ 'current-step': index === current_fifo_step_index, 'fault-row': step.fault }">
+                                    <td>{{ index + 1 }}</td> <td :class="{ 'fault-cell': step.fault }">{{ step.page }}</td> <td v-for="(frame, f_idx) in step.frames" :key="'fifo-frame-cell-' + index + '-' + f_idx">
+                                        {{ frame == null ? '' : frame }}
+                                    </td>
+                                    <td>
+                                        <span v-if="step.fault" class="table-fault-indicator">F</span>
+                                    </td>
+                                </tr>
+                                <tr v-if="fifo_steps.length === 0 || current_fifo_step_index === -1">
+                                    <td colspan="7" class="empty-results-message">Presiona SIMULAR y luego Reproducir para ver la simulación.</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <p class="fault-count">Fallos de página: <span class="count-value">{{ fifo_faults }}</span></p>
                 </div>
                 <div class="algorithm-results">
                     <h3>LRU</h3>
-                    <div class="frames-container">
-                        <div class="frame-row" v-for="(step, index) in lru_steps" :key="'lru-step-' + index">
-                            <div class="frame-input-indicator">{{ step.page }}</div>
-                            <div class="frame-box" v-for="frame in step.frames">{{ frame }}</div>
-                            <div class="page-fault" v-if="step.fault">F</div>
-                        </div>
+                    <div class="frames-container simulation-table-container"> <table class="simulation-table">
+                            <thead>
+                                <tr>
+                                    <th>Tiempo</th>
+                                    <th>Referencia</th>
+                                    <th v-for="n in 4" :key="'lru-m' + n">M{{ n }}</th> <th>Fallos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(step, index) in lru_steps.slice(0, current_lru_step_index + 1)" :key="'lru-step-table-' + index"
+                                    :class="{ 'current-step': index === current_lru_step_index, 'fault-row': step.fault }">
+                                    <td>{{ index + 1 }}</td>
+                                    <td :class="{ 'fault-cell': step.fault }">{{ step.page }}</td>
+                                    <td v-for="(frame, f_idx) in step.frames" :key="'lru-frame-cell-' + index + '-' + f_idx">
+                                        {{ frame == null ? '' : frame }}
+                                    </td>
+                                    <td>
+                                        <span v-if="step.fault" class="table-fault-indicator">F</span>
+                                    </td>
+                                </tr>
+                                <tr v-if="lru_steps.length === 0 || current_lru_step_index === -1">
+                                    <td colspan="7" class="empty-results-message">Presiona SIMULAR y luego Reproducir para ver la simulación.</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <p class="fault-count">Fallos de página: <span class="count-value">{{ lru_faults }}</span></p>
                 </div>
