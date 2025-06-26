@@ -49,7 +49,6 @@ export const componente = {
             async Simular()
             {
                 // Limpiamos y reiniciamos todo antes de una nueva simulación
-                this.simulando = true;
                 this.pauseSimulation(); // Asegurarse de que cualquier simulación anterior esté detenida
                 this.fifo_steps = [];
                 this.fifo_faults = 0;
@@ -60,12 +59,13 @@ export const componente = {
                 this.simulation_active = false; // Se activa al recibir resultados
 
                 const secuencia_paginas = this.paginas.map(p => p.pagina);
-
+                
                 if (secuencia_paginas.length === 0) {
                     alert("Por favor, agregue páginas a la secuencia antes de simular.");
                     return;
                 }
-
+                
+                this.simulando = true;
                 console.log("Enviando secuencia para simular:", secuencia_paginas);
 
                 try
