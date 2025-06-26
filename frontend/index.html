@@ -31,7 +31,7 @@
             </div>
             <div class="algoritmo-card">
                 <h3>Algoritmo LRU (Least Recently Used)</h3>
-                <p>LRU es un algoritmo más sofisticado. Reemplaza la página que no ha sido utilizada durante el mayor período de tiempo. Se basa en la idea de que las páginas que se han utilizado recientemente son más propensas a ser utilizadas de nuevo en el futuro. Es más eficiente que FIFO pero más complejo de implementar.</p>
+                <p>LRU es un algoritmo más complejo y generalmente más eficiente que FIFO. Cuando se necesita reemplazar una página, LRU selecciona aquella que no ha sido utilizada durante el período de tiempo más largo. La premisa es que las páginas usadas recientemente tienen más probabilidades de ser usadas de nuevo en el futuro. Requiere un mecanismo para rastrear el "tiempo" o el uso de cada página.</p>
             </div>
         </section>
 
@@ -83,22 +83,18 @@
             <div class="results-grid">
                 <div class="algorithm-results">
                     <h3>FIFO</h3>
-                    <div class="frames-container simulation-table-container">
-                        <table class="simulation-table">
+                    <div class="frames-container simulation-table-container"> <table class="simulation-table">
                             <thead>
                                 <tr>
                                     <th>Tiempo</th>
                                     <th>Referencia</th>
-                                    <th v-for="n in 4" :key="'fifo-m' + n">M{{ n }}</th>
-                                    <th>Fallos</th>
+                                    <th v-for="n in 4" :key="'fifo-m' + n">M{{ n }}</th> <th>Fallos</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(step, index) in fifo_steps.slice(0, current_fifo_step_index + 1)" :key="'fifo-step-table-' + index"
                                     :class="{ 'current-step': index === current_fifo_step_index, 'fault-row': step.fault }">
-                                    <td>{{ index + 1 }}</td>
-                                    <td :class="{ 'fault-cell': step.fault }">{{ step.page }}</td>
-                                    <td v-for="(frame, f_idx) in step.frames" :key="'fifo-frame-cell-' + index + '-' + f_idx">
+                                    <td>{{ index + 1 }}</td> <td :class="{ 'fault-cell': step.fault }">{{ step.page }}</td> <td v-for="(frame, f_idx) in step.frames" :key="'fifo-frame-cell-' + index + '-' + f_idx">
                                         {{ frame == null ? '' : frame }}
                                     </td>
                                     <td>
@@ -111,18 +107,18 @@
                             </tbody>
                         </table>
                     </div>
-                    <p class="fault-count">Fallos de página: <span class="count-value">{{ fifo_faults }}</span></p>
+                    <p class="stats-line">Hits: <span class="count-value">{{ fifo_stats.hit }}</span></p>
+                    <p class="stats-line">Fallos: <span class="count-value">{{ fifo_stats.faults }}</span></p>
+                    <p class="stats-line">Descartes: <span class="count-value">{{ fifo_stats.discard }}</span></p>
                 </div>
                 <div class="algorithm-results">
                     <h3>LRU</h3>
-                    <div class="frames-container simulation-table-container">
-                        <table class="simulation-table">
+                    <div class="frames-container simulation-table-container"> <table class="simulation-table">
                             <thead>
                                 <tr>
                                     <th>Tiempo</th>
                                     <th>Referencia</th>
-                                    <th v-for="n in 4" :key="'lru-m' + n">M{{ n }}</th>
-                                    <th>Fallos</th>
+                                    <th v-for="n in 4" :key="'lru-m' + n">M{{ n }}</th> <th>Fallos</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -143,7 +139,9 @@
                             </tbody>
                         </table>
                     </div>
-                    <p class="fault-count">Fallos de página: <span class="count-value">{{ lru_faults }}</span></p>
+                    <p class="stats-line">Hits: <span class="count-value">{{ lru_stats.hit }}</span></p>
+                    <p class="stats-line">Fallos: <span class="count-value">{{ lru_stats.faults }}</span></p>
+                    <p class="stats-line">Descartes: <span class="count-value">{{ lru_stats.discard }}</span></p>
                 </div>
             </div>
         </section>
@@ -214,7 +212,13 @@
                         <li><strong>M1, M2, M3, M4:</strong> Representan los marcos (espacios) de memoria RAM disponibles. El número indica la página actualmente cargada en ese marco.</li>
                         <li><strong>Fallos:</strong> Un indicador 'F' en esta columna significa que en ese paso se produjo un fallo de página, lo que implicó cargar la página deseada desde el disco y posiblemente desalojar otra página de la RAM.</li>
                     </ul>
-                    <p>Al final de cada tabla, se muestra el "Total de Fallos de Página", un indicador clave de la eficiencia del algoritmo para una secuencia dada: menos fallos generalmente significan mejor rendimiento.</p>
+                    <p>Al final de cada tabla, se muestran las estadísticas clave de cada algoritmo:</p>
+                    <ul>
+                        <li><strong>Hits:</strong> Número de veces que una página solicitada ya se encontraba en la RAM (acierto de página).</li>
+                        <li><strong>Fallos:</strong> Número total de fallos de página que ocurrieron, es decir, veces que la página solicitada no estaba en RAM y se tuvo que cargar desde el disco (incluyendo reemplazos).</li>
+                        <li><strong>Descartes (Discards):</strong> Número de veces que una página tuvo que ser desalojada de la RAM para hacer espacio a una nueva (este es el "fallo de intercambio" o "reemplazo").</li>
+                    </ul>
+                    <p>Un menor número de fallos y descartes (en relación a los hits) generalmente indica una mayor eficiencia del algoritmo para una secuencia dada.</p>
                 </div>
 
                 <div v-if="currentManualSection === 'codigo'">
@@ -270,7 +274,7 @@ simulador/
                             <ul>
                                 <li><strong>Gestión de Secuencia:</strong> Maneja la adición y eliminación de páginas en la secuencia (`paginas`). Se ha añadido el método `LimpiarPaginas()` para vaciar la secuencia de páginas, reiniciando la selección del usuario.</li>
                                 <li><strong>Control de Simulación Activa:</strong> La nueva propiedad `simulando` (booleana) se establece en `true` al inicio de la función `Simular()` y en `false` en su bloque `finally` (para garantizar que se restablezca incluso si ocurre un error). Esta propiedad es crucial para controlar el estado deshabilitado de los botones "SIMULAR" y "Limpiar Páginas".</li>
-                                <li><strong>Comunicación con Backend:</strong> La función `Simular()` realiza una petición `POST` a la ruta `/simulate` del backend, enviando la secuencia de páginas y esperando los resultados de la simulación.</li>
+                                <li><strong>Comunicación con Backend:</strong> La función `Simular()` realiza una petición `POST` a la ruta `/simulate` del backend, enviando la secuencia de páginas y esperando los resultados de la simulación. Se espera una nueva estructura de datos que incluye estadísticas de "hits", "fallos" y "descartes".</li>
                                 <li><strong>Simulación en Tiempo Real:</strong> Al recibir los resultados, `playSimulation()` utiliza `setInterval()` para avanzar y mostrar los pasos de la simulación uno por uno en la tabla de resultados. Los métodos `pauseSimulation()` y `resetSimulation()` permiten controlar esta reproducción. Se ha implementado también el desplazamiento automático de la tabla para seguir el paso actual, mejorando la visibilidad durante la animación.</li>
                                 <li><strong>Control del Manual de Usuario:</strong> Las propiedades `showManual` y `currentManualSection`, junto con los métodos `toggleManual()` y `setManualSection()`, controlan la visibilidad y navegación dentro del manual interactivo, incluyendo la sección dedicada a la documentación del código.</li>
                             </ul>
@@ -289,37 +293,45 @@ simulador/
                         <li><strong>API de Simulación (`@app.post("/simulate")`):</strong>
                             <ul>
                                 <li><strong>Recepción de Datos:</strong> Espera una petición `POST` desde el frontend, recibiendo una secuencia de páginas en formato JSON que el usuario desea simular.</li>
-                                <li><strong>Función `pagina_en_ram()`:</strong> Una función auxiliar crucial que verifica si una página específica ya se encuentra cargada en la memoria RAM (`ram`). Es capaz de manejar las estructuras de datos tanto de FIFO (tuplas `[llegada, pagina]`) como de LRU (diccionarios `{pagina: [llegada, ultimo_uso]}`).</li>
+                                <li><strong>Nueva Estructura de Retorno:</strong> Los resultados para FIFO y LRU ahora incluyen un sub-diccionario `stats` con conteos detallados de `hit` (aciertos), `faults` (fallos) y `discard` (páginas descartadas por reemplazo).</li>
+                                <li><strong>Función `pagina_en_ram()`:</strong> Una función auxiliar crucial que verifica si una página específica ya se encuentra cargada en la memoria RAM (`ram`). Ha sido mejorada para ser compatible con las diferentes estructuras de datos utilizadas para la RAM en FIFO (tuplas `[llegada, pagina]`) y LRU (diccionarios `{pagina: [llegada, ultimo_uso]}`).</li>
                                 <li><strong>Implementación FIFO (First-In, First-Out):</strong>
                                     <ul>
-                                        <li>Mantiene una lista `RAM_fifo` que simula los 4 marcos de memoria disponibles. Cada elemento en `RAM_fifo` es una tupla `[llegada, pagina]`, donde `llegada` es un contador para rastrear el orden de entrada de la página.</li>
-                                        <li>Para cada `pagina_ref` en la secuencia de entrada:
+                                        <li>Mantiene una lista `RAM_fifo` que simula los 4 marcos de memoria disponibles. Cada elemento en `RAM_fifo` es una tupla `[llegada, pagina]`, donde `llegada` es un contador que rastrea el orden de entrada de la página.</li>
+                                        <li>Para cada `pagina_ref` en la secuencia:
                                             <ul>
-                                                <li>Verifica si la página ya está en `RAM_fifo`.</li>
-                                                <li>Si no está y hay espacio disponible, la página se carga en el último espacio disponible de `RAM_fifo` y se registra como un fallo de página.</li>
-                                                <li>Si no hay espacio, se busca la página con el menor valor de `llegada` (la página más antigua) para reemplazarla. Tras el reemplazo, el contador de `llegada` de las páginas no reemplazadas se decrementa para simular el paso del tiempo y mantener la lógica FIFO.</li>
-                                                <li>Se registra el estado de la simulación en `fifo["steps"]`, incluyendo el tiempo del paso, la página referenciada, el estado actual de los marcos (`frames`) y si hubo un fallo.</li>
+                                                <li>Si la página **ya está en RAM**, se registra un `hit`. El `fault` para este `step` es `None`.</li>
+                                                <li>Si la página **no está en RAM**:
+                                                    <ul>
+                                                        <li>Si hay **espacio vacío**, la página se carga. Se registra un `fault` (por no estar en RAM) pero el `fault` para el `step` es `None` (no hubo intercambio).</li>
+                                                        <li>Si la **RAM está llena**, se busca la página con el menor valor de `llegada` (la más antigua) para reemplazarla. Se registra un `fault` (por no estar en RAM) y un `discard` (por el reemplazo), y el `fault` para el `step` es `True` (hubo intercambio).</li>
+                                                    </ul>
+                                                </li>
+                                                <li>El contador `llegada` se actualiza para mantener el orden FIFO.</li>
+                                                <li>Se registra un "paso" en `fifo["steps"]` incluyendo el tiempo, la página referenciada, el estado actual de los marcos (`frames`) y el tipo de fallo (`fault`: `True` o `None`).</li>
                                             </ul>
                                         </li>
-                                        <li>El conteo total de fallos (`fifo["faults"]`) se incrementa cada vez que ocurre un fallo de página.</li>
                                     </ul>
                                 </li>
                                 <li><strong>Implementación LRU (Least Recently Used):</strong>
                                     <ul>
-                                        <li>Mantiene una lista `RAM_lru` para simular los 4 marcos de memoria. Cada marco almacena un diccionario `{pagina: [tiempo_carga, ultimo_uso]}`, donde `ultimo_uso` es un contador que registra el momento más reciente en que la página fue accedida o cargada.</li>
-                                        <li>Para cada `pagina_ref` en la secuencia de entrada:
+                                        <li>Mantiene una lista `RAM_lru` para simular los 4 marcos de memoria. Cada marco almacena un diccionario `{pagina: [tiempo_carga, ultimo_uso]}`, donde `ultimo_uso` es un contador global (`lru_time`) que registra el momento más reciente en que la página fue accedida o cargada.</li>
+                                        <li>Para cada `pagina_ref` en la secuencia:
                                             <ul>
-                                                <li>Incrementa un contador global `lru_time` para rastrear el tiempo de uso.</li>
-                                                <li>Verifica si la página ya está en `RAM_lru`. Si lo está, se actualiza su `ultimo_uso` al `lru_time` actual.</li>
-                                                <li>Si no está y hay espacio, la página se carga y se marca como fallo. Su `tiempo_carga` y `ultimo_uso` se establecen al `lru_time` actual.</li>
-                                                <li>Si la RAM está llena, busca la página con el `min_lru_usage_time` (la menos recientemente usada) para reemplazarla con la nueva `pagina_ref`.</li>
-                                                <li>Se registra un "paso" en `lru["steps"]` incluyendo el tiempo, la página referenciada, el estado actual de los marcos (`frames`) y si hubo un fallo.</li>
+                                                <li>Incrementa `lru_time`.</li>
+                                                <li>Si la página **ya está en RAM**, se registra un `hit` y su `ultimo_uso` se actualiza al `lru_time` actual. El `fault` para este `step` es `None`.</li>
+                                                <li>Si la página **no está en RAM**:
+                                                    <ul>
+                                                        <li>Si hay **espacio vacío**, la página se carga. Se registra un `fault` (por no estar en RAM) y el `fault` para el `step` es `None`.</li>
+                                                        <li>Si la **RAM está llena**, se busca la página con el menor valor de `ultimo_uso` (la menos recientemente usada) para reemplazarla. Se registra un `fault` (por no estar en RAM) y un `discard` (por el reemplazo), y el `fault` para el `step` es `True`.</li>
+                                                    </ul>
+                                                </li>
+                                                <li>Se registra un "paso" en `lru["steps"]` incluyendo el tiempo, la página referenciada, el estado actual de los marcos (`frames`) y el tipo de fallo (`fault`: `True` o `None`).</li>
                                             </ul>
                                         </li>
-                                        <li>El conteo total de fallos (`lru["faults"]`) se incrementa cada vez que se produce un fallo de página.</li>
                                     </ul>
                                 </li>
-                                <li><strong>Envío de Resultados:</strong> Una vez completadas ambas simulaciones, la función devuelve un objeto JSON que contiene los resultados detallados (`steps` y `faults`) para ambos algoritmos al frontend, listos para su procesamiento y visualización en tiempo real.</li>
+                                <li><strong>Envío de Resultados:</strong> Una vez completadas ambas simulaciones, la función devuelve un objeto JSON que contiene los resultados detallados (`steps`) y las nuevas estadísticas (`stats`) para ambos algoritmos al frontend, listos para su procesamiento y visualización en tiempo real.</li>
                             </ul>
                         </li>
                     </ul>
@@ -332,6 +344,10 @@ simulador/
                         <li>El simulador está configurado con 4 marcos de memoria RAM.</li>
                         <li>Este simulador está diseñado con fines educativos y simplifica ciertos aspectos de la gestión de memoria real para facilitar la comprensión.</li>
                         <li>El diseño está inspirado en la estética cyberpunk para una experiencia visual inmersiva. ¡Disfrútalo!</li>
+                        <li>
+                            Generalmente en sistemas operativos, todo acceso a una página no presente en RAM es un <strong>page fault</strong>, aunque no implique reemplazo. Por eso la tabla marcará todos los accesos a páginas ausentes como fallos (con o sin reemplazo), y las estadísticas también lo reflejarán correctamente.
+                           
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -340,7 +356,7 @@ simulador/
 
     <script type="module">
         import { createApp } from 'https://unpkg.com/petite-vue?module'
-        import { componente } from './js/componente.js' // RUTA JS VERIFICADA
+        import { componente } from './js/componente.js'
         createApp(componente).mount()
     </script>
 </body>
