@@ -21,8 +21,8 @@ def serve_index():
 @app.post("/simulate")
 def simulando():
     data: dict = request.get_json()
-    fifo: dict = {"steps": [], "faults": 0}
-    lru: dict = {"steps": [], "faults": 0}
+    fifo: dict = {"steps": [], "stats": {"hit": 0, "faults": 0, "discard": 0}}
+    lru: dict = {"steps": [], "stats": {"hit": 0, "faults": 0, "discard": 0}}
 
     # PASADA PARA FIFO
     RAM_fifo: list = [None, None, None, None] # Usa RAM_fifo para evitar conflicto de nombre
@@ -33,19 +33,20 @@ def simulando():
         is_fault = False
 
         if pagina_en_ram(pagina=pagina_ref, ram=RAM_fifo):
-            
+            fifo["stats"]["hit"] += 1
             pass 
         elif espacio_fifo > 0:
             
             is_fault = True
-            fifo["faults"] += 1
+            fifo["stats"]["faults"] += 1
             RAM_fifo[-espacio_fifo] = [llegada_fifo, pagina_ref]
             espacio_fifo -= 1
             llegada_fifo += 1
         else:
            
             is_fault = True
-            fifo["faults"] += 1
+            fifo["stats"]["faults"] += 1
+            fifo["stats"]["discard"] += 1
             
             pagina_a_reemplazar_idx = -1
             min_llegada = float('inf') 
@@ -95,12 +96,13 @@ def simulando():
                 # Actualizar el tiempo de último uso
                 RAM_lru[index][pagina_ref][1] = llegada_lru
                 pagina_ya_en_ram = True
+                lru["stats"]["hit"] += 1
                 break
 
         if not pagina_ya_en_ram:
             # Fallo de página
             is_fault = True
-            lru["faults"] += 1
+            lru["stats"]["faults"] += 1
 
             if espacio_lru > 0:
                 # Hay espacio disponible, cargamos sin reemplazar
@@ -108,6 +110,7 @@ def simulando():
                 espacio_lru -= 1
             else:
                 # RAM llena: aplicar política LRU (reemplazar la menos recientemente usada)
+                lru["stats"]["discard"] += 1
                 menor_uso = None
                 index_reemplazo = None
 
